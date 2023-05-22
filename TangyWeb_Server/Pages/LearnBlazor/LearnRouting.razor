@@ -1,0 +1,44 @@
+﻿@page "/learnBlazor/learnRouting/{id}"
+@page "/learnRouting/{id}"
+@page "/learnBlazor/learnRouting/{id}/{parameter2}"
+@page "/learnBlazor/learnRouting"
+@page "/learnRouting"
+@using System.Web;
+
+@inject NavigationManager _NavigationManager;
+
+<h2>LearnRouting</h2>
+<p class="lead">Id: @Id</p>
+<p class="lead">Parameter 2: @Parameter2</p>
+
+<NavLink href="learnRouting?Param1=Tangy&Param2=Blazor" class="btn btn-primary">Navigate to query parameters</NavLink>
+<button type="button" class="btn btn-secondary" @onclick="NavigateToQueryParam">Navigate to query parameter using Button</button>
+<button type="button" class="btn btn-success" @onclick="LoadParameters">Load with query parameter</button>
+<br />
+<h3>Query String Parameters</h3>
+<p class="lead">Param 1: @Param1</p>
+<p class="lead">Param 2: @Param2</p>
+
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+    [Parameter]
+    public string? Parameter2 { get; set; }
+
+    public string? Param1 { get; set; }
+    public string? Param2 { get; set; }
+
+    private void LoadParameters()
+    {
+        var absoluteUri = new Uri(_NavigationManager.Uri);
+        var queryParam = HttpUtility.ParseQueryString(absoluteUri.Query);
+        Param1 = queryParam[nameof(Param1)];
+        Param2 = queryParam[nameof(Param2)];
+    }
+
+    private void NavigateToQueryParam()
+    {
+        _NavigationManager.NavigateTo("learnRouting?Param1=Tangy&Param2=Blazor");
+    }
+}

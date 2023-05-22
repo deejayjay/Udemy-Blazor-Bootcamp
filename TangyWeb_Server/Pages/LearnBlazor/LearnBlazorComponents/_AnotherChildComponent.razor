@@ -1,0 +1,11 @@
+﻿<div>
+    <form>
+        <h4 class="text-primary pt-5">Another Child Component</h4>
+        <input type="text" id="nametemp" class="form-control" @attributes="InputAttributes" />
+    </form>
+</div>
+
+@code {
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? InputAttributes { get; set; } = new();
+}
