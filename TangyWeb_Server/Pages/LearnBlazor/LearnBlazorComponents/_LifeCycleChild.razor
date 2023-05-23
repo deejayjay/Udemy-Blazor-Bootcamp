@@ -1,0 +1,28 @@
+﻿<h3>_LifeCycleChild</h3>
+
+@if (eventTypes.Count > 0)
+{
+    <ul>
+        @foreach (var item in eventTypes)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    [Parameter]
+    public int CountValue { get; set; }
+
+    List<string> eventTypes = new();
+
+    protected override void OnInitialized()
+    {
+        eventTypes.Add($"Child - OnInitialized() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+
+    protected override void OnParametersSet()
+    {
+        eventTypes.Add($"Child - OnParametersSet() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+}

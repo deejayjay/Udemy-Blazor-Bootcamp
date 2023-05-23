@@ -1,0 +1,89 @@
+﻿@page "/learnBlazor/lifecycle"
+
+@using System.Threading;
+
+<h3>LifeCycle</h3>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<br />
+<div class="mt-5">
+    @Count
+</div>
+<button class="btn btn-secondary" @onclick="StartCountdown">Start Countdown</button>
+
+<div class="border my-4 p-4 rounded-3">
+    <_LifeCycleChild CountValue="@currentCount"></_LifeCycleChild>
+</div>
+
+@if (eventTypes.Count > 0)
+{
+    <ul>
+        @foreach (var item in eventTypes)
+        {
+            <li>@item</li>
+        }
+    </ul>
+}
+
+@code {
+    private int currentCount = 0;
+    List<string> eventTypes = new();
+    private int Count { get; set; } = 5;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    protected override void OnInitialized()
+    {
+        eventTypes.Add($"Parent - OnInitialized() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        eventTypes.Add($"Parent - OnInitializedAsync() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");        
+    }
+
+    protected override void OnParametersSet()
+    {
+        eventTypes.Add($"Parent - OnParametersSet() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        eventTypes.Add($"Parent - OnParametersSetAsync() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");        
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        eventTypes.Add($"Parent - OnAfterRender() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        eventTypes.Add($"Parent - OnAfterRenderAsync() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+    }
+
+    protected override bool ShouldRender()
+    {
+        eventTypes.Add($"Parent - ShouldRender() was called at {DateTime.Now.ToString("hh:mm:ss.ffff tt")}");
+        return true;
+    }
+
+    private void StartCountdown()
+    {
+        var timer = new Timer(TimeCallback, null, 1000, 1000);
+    }
+
+    private void TimeCallback(object state)
+    {
+        if (Count > 0)
+        {
+            Count--;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+}
