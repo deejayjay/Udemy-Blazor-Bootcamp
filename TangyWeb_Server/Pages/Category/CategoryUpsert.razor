@@ -27,7 +27,7 @@
                 </div>
                 <div class="form-group mt-3">
                     <button class="btn btn-primary">@Title</button>
-                    <NavLink href="/category" class="btn btn-secondary">Back to Index</NavLink>
+                    <NavLink href="/category" class="btn btn-secondary">Back to List</NavLink>
                 </div>
             </EditForm>
         }        
@@ -40,43 +40,47 @@
 
     private CategoryDTO Category { get; set; } = new();
     private string Title { get; set; } = "Create";
-    private bool IsLoading { get; set; } = true;
+    private bool IsLoading { get; set; }
 
-    private void UpsertCategory()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (Id == 0)
+            {
+                // Create request
+                IsLoading = false;
+            }
+            else
+            {
+                // Update request
+                Title = "Update";
+                await LoadCategory();
+            }
+        }
+    }    
+
+    private async Task LoadCategory()
+    {
+        IsLoading = true;
+        StateHasChanged();
+        Category = await _categoryRepo.Get(Id);
+        IsLoading = false;
+        StateHasChanged();
+    }
+
+    private async Task UpsertCategory()
     {
         if (Category.Id == 0)
         {
             // Create new category
-            _categoryRepo.Create(Category);            
+            await _categoryRepo.Create(Category);            
         }
         else
         {
             // Update the category
-            _categoryRepo.Update(Category);
+            await _categoryRepo.Update(Category);
         }
         _navigationManager.NavigateTo("/category");
-    }
-
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (Id == 0)
-        {
-            // Create request
-            IsLoading = false;
-        }
-        else
-        {
-            // Update request
-            Title = "Update";
-            await Task.Run(LoadCategory);
-        }
-    }
-
-    private void LoadCategory()
-    {
-        Category = _categoryRepo.Get(Id);
-        IsLoading = false;
     }
 }

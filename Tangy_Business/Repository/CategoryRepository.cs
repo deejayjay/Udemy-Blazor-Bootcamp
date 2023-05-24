@@ -20,34 +20,34 @@ namespace Tangy_Business.Repository
 
         #endregion
 
-        public CategoryDTO Create(CategoryDTO objDTO)
+        public async Task<CategoryDTO> Create(CategoryDTO objDTO)
         {
             // Converts CategoryDTO to Category using AutoMapper
             var obj = _mapper.Map<CategoryDTO, Category>(objDTO);
             obj.CreatedDate = DateTime.Now;
             
             var addedObj = _db.Categories!.Add(obj);
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
 
             // Converts Category to CategoryDTO using AutoMapper
             return _mapper.Map<Category, CategoryDTO>(addedObj.Entity);
         }
 
-        public int Delete(int id)
+        public async Task<int> Delete(int id)
         {
-            var obj = _db.Categories!.Find(id);
+            var obj = await _db.Categories!.FindAsync(id);
 
             if (obj is not null)
             {
                 _db.Categories!.Remove(obj);
-                return _db.SaveChanges();
+                return await _db.SaveChangesAsync();
             }
             return 0;
         }
 
-        public CategoryDTO Get(int id)
+        public async Task<CategoryDTO> Get(int id)
         {
-            var obj = _db.Categories!.Find(id);
+            var obj = await _db.Categories!.FindAsync(id);
             
             if (obj is not null) 
             {
@@ -56,20 +56,20 @@ namespace Tangy_Business.Repository
             return new CategoryDTO();
         }
 
-        public IEnumerable<CategoryDTO> GetAll()
+        public async Task<IEnumerable<CategoryDTO>> GetAll()
         {
-            return _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(_db.Categories!);
+            return await Task.FromResult(_mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(_db.Categories!));
         }
 
-        public CategoryDTO Update(CategoryDTO objDTO)
+        public async Task<CategoryDTO> Update(CategoryDTO objDTO)
         {
-            var objFromDb = _db.Categories!.Find(objDTO.Id);
+            var objFromDb = await _db.Categories!.FindAsync(objDTO.Id);
 
             if (objFromDb is not null)
             {
                 objFromDb.Name = objDTO.Name;
                 _db.Categories.Update(objFromDb);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 return _mapper.Map<Category, CategoryDTO>(objFromDb);
             }
 

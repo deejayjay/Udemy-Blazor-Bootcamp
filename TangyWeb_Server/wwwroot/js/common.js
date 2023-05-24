@@ -1,5 +1,5 @@
 /* 
-    Code to show toastr notifications
+    Show toastr notifications
     Ref: https://github.com/CodeSeven/toastr
 */
 function showToastr(type, message) {
@@ -12,7 +12,7 @@ function showToastr(type, message) {
 }
 
 /*
-    Code to show success/error sweet alerts
+    Show success/error sweet alerts
     Ref: https://sweetalert2.github.io/
 */
 function showSweetAlert(type, title, message) {
@@ -29,4 +29,14 @@ function showSweetAlert(type, title, message) {
             icon: 'error'
         })
     }
+}
+
+// Show delete confirmation modal
+function showDeleteConfirmationModal() {
+    $('#deleteConfirmationModal').modal('show');
+}
+
+// Hide delete confirmation modal
+function hideDeleteConfirmationModal() {
+    $('#deleteConfirmationModal').modal('hide');
 }
