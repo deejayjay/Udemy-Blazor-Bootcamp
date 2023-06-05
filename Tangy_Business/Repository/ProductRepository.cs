@@ -27,7 +27,7 @@ namespace Tangy_Business.Repository
             var obj = _mapper.Map<ProductDTO, Product>(objDTO);
 
             // Create a new Product
-            var addedObj = _db.Products!.Add(obj);
+            var addedObj = await _db.Products!.AddAsync(obj);
             await _db.SaveChangesAsync();
 
             // Convert Product to ProductDTO & return it

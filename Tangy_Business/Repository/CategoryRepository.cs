@@ -26,7 +26,7 @@ namespace Tangy_Business.Repository
             var obj = _mapper.Map<CategoryDTO, Category>(objDTO);
             obj.CreatedDate = DateTime.Now;
             
-            var addedObj = _db.Categories!.Add(obj);
+            var addedObj = await _db.Categories!.AddAsync(obj);
             await _db.SaveChangesAsync();
 
             // Converts Category to CategoryDTO using AutoMapper

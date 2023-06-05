@@ -3,12 +3,14 @@
 
 @inject ICategoryRepository _categoryRepo
 @inject IProductRepository _productRepo
+@inject IFileUpload _fileUpload
+@inject IJSRuntime _jsRuntime
 @inject NavigationManager _navigationManager
 
 <div class="row my-2">
-    <h2 class="text-primary mb-3">Product Upsert</h2>
+    <h2 class="text-primary mb-3">@Title Product</h2>
 
-    <div class="col-10">
+    <div class="col-md-10">
         @if (IsLoading)
         {
             // Loading gif
@@ -21,36 +23,50 @@
             <EditForm Model="Product" OnValidSubmit="UpsertProduct">
                 <DataAnnotationsValidator />
                 @*<ValidationSummary />*@
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <label for="name" class="form-label">Name</label>
                     <InputText @bind-Value="Product.Name" class="form-control" id="name"></InputText>
                     <ValidationMessage For="()=>Product.Name" />
                 </div>
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <label for="color" class="form-label">Color</label>
                     <InputText @bind-Value="Product.Color" class="form-control" id="color"></InputText>
                     <ValidationMessage For="()=>Product.Color" />
                 </div>
-                <div class="form-group">
+                <div class="form-group mb-2">
                     <label for="description" class="form-label">Description</label>
-                    <InputTextArea @bind-Value="Product.Description" class="form-control" id="description"></InputTextArea>
+                    <SfRichTextEditor @bind-Value="Product.Description" id="description"></SfRichTextEditor>
                     <ValidationMessage For="()=>Product.Description" />
                 </div>
 
                 <div class="row pt-3">
-                    <div class="form-group col-6">
+                    <div class="form-group col-6 mb-2">
                         <div class="form-check">
                             <InputCheckbox @bind-Value="Product.ShopFavorites" class="form-check-input" id="shopFavorite">
                             </InputCheckbox>
                             <label class="form-check-label" for="shopFavorite">Is Shop Favorite</label>
                         </div>
                     </div>
-                    <div class="form-group col-6">
+                    <div class="form-group col-6 mb-2">
                         <div class="form-check">
                             <InputCheckbox @bind-Value="Product.CustomerFavorites" class="form-check-input" id="customerFavorite">
                             </InputCheckbox>
                             <label class="form-check-label" for="customerFavorite">Is Customer Favorite</label>
                         </div>
+                    </div>
+                    <div class="form-group col-6 mb-2">
+                        <label class="form-label" for="category">Category</label>
+                        <InputSelect @bind-Value="Product.CategoryId" class="form-select">
+                            <option value="0" selected disabled>--Select Category--</option>
+                            @foreach (var category in Categories)
+                            {
+                                <option value="@category.Id">@category.Name</option>
+                            }
+                        </InputSelect>
+                        <ValidationMessage For="()=>Product.CategoryId" />
+                    </div>
+                    <div class="form-group col-6 mb-2 pt-4">
+                        <InputFile OnChange="HandleImageUpload"></InputFile>
                     </div>
                 </div>
 
@@ -59,7 +75,10 @@
                     <NavLink href="/product" class="btn btn-secondary">Back to List</NavLink>
                 </div>
             </EditForm>
-        }        
+        }
+    </div>
+    <div class="col-md-2">
+        <img src="@Product.ImageUrl" alt="A picture of @Product.Name" class="w-100" />
     </div>
 </div>
 
@@ -67,10 +86,14 @@
     [Parameter]
     public int Id { get; set; }
 
-    private ProductDTO Product { get; set; } = new();
+    private ProductDTO Product { get; set; } = new()
+    {
+        ImageUrl = "/images/default.png"
+    };
     private IEnumerable<CategoryDTO> Categories { get; set; } = new List<CategoryDTO>();
     private string Title { get; set; } = "Create";
     private bool IsLoading { get; set; }
+    public string OldImageUrl { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -78,7 +101,7 @@
         {
             await LoadProduct();
         }
-    }    
+    }
 
     private async Task LoadProduct()
     {
@@ -96,12 +119,13 @@
             // Update request
             Title = "Update";
             Product = await _productRepo.Get(Id);
+            OldImageUrl = Product.ImageUrl;
         }
 
-        
+
         IsLoading = false;
         StateHasChanged();
-    }    
+    }
 
     private async Task UpsertProduct()
     {
@@ -109,12 +133,48 @@
         {
             // Create new category
             await _productRepo.Create(Product);
+            await _jsRuntime.ToastrSuccess("Product created successfully");
         }
         else
         {
             // Update the category
+            if (OldImageUrl != Product.ImageUrl)
+            {
+                await _fileUpload.DeleteFile(OldImageUrl);
+            }
             await _productRepo.Update(Product);
+            await _jsRuntime.ToastrSuccess("Product updated successfully");
         }
         _navigationManager.NavigateTo("/product");
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        IsLoading = true;
+
+        try
+        {
+            IReadOnlyList<IBrowserFile> files = e.GetMultipleFiles();
+            if (files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    FileInfo fileInfo = new(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg" || fileInfo.Extension.ToLower() == ".jpeg" || fileInfo.Extension.ToLower() == ".png" || fileInfo.Extension.ToLower() == ".webp")
+                    {
+                        Product.ImageUrl = await _fileUpload.UploadFile(file);
+                    }
+                    else
+                    {
+                        await _jsRuntime.ToastrError("Only '.jpg, .jpeg, .png & .webp' files allowed");                        
+                    }
+                }
+            }
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            await _jsRuntime.ToastrError(ex.Message);
+        }
     }
 }

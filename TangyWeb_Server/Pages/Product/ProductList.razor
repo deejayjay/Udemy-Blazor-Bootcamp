@@ -1,6 +1,7 @@
 ﻿@page "/product"
 
 @inject IProductRepository _productRepo
+@inject IFileUpload _fileUpload
 @inject IJSRuntime _jsRuntime
 
 <_DeleteConfirmation OnDeleteClick="ConfirmDeleteClick" IsProcessing="IsLoading"></_DeleteConfirmation>
@@ -38,6 +39,7 @@
                             <td>@product.Category.Name</td>
                             <td>
                                 <NavLink href="@($"/product/edit/{product.Id}")" class="btn btn-primary">Edit</NavLink>
+                                <NavLink href="@($"/product/price/{product.Id}")" class="btn btn-success">Price</NavLink>
                                 <button class="btn btn-danger" type="button" @onclick="() => HandleDelete(product.Id)">
                                     Delete
                                 </button>
@@ -99,7 +101,13 @@
             IsLoading = true;
 
             // Delete the Product
+            ProductDTO product = await _productRepo.Get(DeleteProductId);
+            if (!product.ImageUrl.Contains("default.png"))
+            {
+                await _fileUpload.DeleteFile(product.ImageUrl);                
+            }
             await _productRepo.Delete(DeleteProductId);
+            await _jsRuntime.ToastrSuccess("Product deleted successfully");
             await LoadProducts();
             await _jsRuntime.InvokeVoidAsync("hideDeleteConfirmationModal");
 

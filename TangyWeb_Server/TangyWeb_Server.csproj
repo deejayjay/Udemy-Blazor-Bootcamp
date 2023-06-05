@@ -14,12 +14,19 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.16" />
+    <PackageReference Include="Syncfusion.Blazor.Grid" Version="21.2.8" />
+    <PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="21.2.8" />
+    <PackageReference Include="Syncfusion.Blazor.Themes" Version="21.2.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Tangy_Business\Tangy_Business.csproj" />
     <ProjectReference Include="..\Tangy_DataAccess\Tangy_DataAccess.csproj" />
     <ProjectReference Include="..\Tangy_Models\Tangy_Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\images\product\" />
   </ItemGroup>
 
 </Project>
