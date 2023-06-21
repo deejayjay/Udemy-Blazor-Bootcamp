@@ -1,4 +1,5 @@
 ﻿@page "/category"
+@attribute [Authorize(Roles = SD.Role_Admin)]
 
 @inject ICategoryRepository _categoryRepo
 @inject IJSRuntime _jsRuntime
